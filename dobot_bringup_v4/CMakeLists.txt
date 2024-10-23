@@ -21,7 +21,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(ur5_msgs REQUIRED)
+find_package(mw_denso_homologation_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(dobot_msgs_v4 REQUIRED)
 
