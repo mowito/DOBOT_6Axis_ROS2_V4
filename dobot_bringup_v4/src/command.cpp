@@ -45,6 +45,19 @@ void CRCommanderRos2::recvTask()
                     if (real_time_data_->len != 1440)
                     {
                         std::cout<<"[command] realtime data doesn't have expected size ,"<<real_time_data_->len<<std::endl;
+
+                        real_time_tcp_->disConnect();
+                        try
+                        {
+                            real_time_tcp_->connect();
+                        }
+                        catch (const TcpClientException &err)
+                        {       
+
+                        std::cout << "real_time_tcp_ tcp recv ERROR : %s" << std::endl;
+                        sleep(3);
+                        }
+                        
                         continue;
                     }
                 
@@ -61,6 +74,9 @@ void CRCommanderRos2::recvTask()
                 else
                 {
                     std::cout << "tcp recv timeout" << std::endl;
+                    
+
+
                 }
             }
             catch (const TcpClientException &err)
@@ -178,6 +194,9 @@ std::string number {};
     }
     catch (const std::logic_error &err)
     {
+        tcp->disConnect();
+        sleep(1);
+        tcp->connect();
         std::cout << "tcpDoCmd failed " << std::endl;
     }
 }
@@ -195,6 +214,42 @@ bool CRCommanderRos2::callRosService(const std::string cmd, int32_t &err_id)
     catch (const TcpClientException &err)
     {
         std::cout<<"Dobot Driver had an error with cmd"<<cmd<<std::endl;
+        if(this->dash_board_tcp_->isConnect())
+        {
+            this->dash_board_tcp_->disConnect();
+        sleep(1);
+        try
+            {
+                dash_board_tcp_->connect();
+            }
+            catch (const TcpClientException &err)
+            {
+
+                std::cout << "callRosService tcp recv ERROR : %s" << std::endl;
+                sleep(3);
+                err_id = -1;
+                return false;
+            }
+        
+
+        }
+        else
+        {
+                    try
+            {
+                dash_board_tcp_->connect();
+            }
+            catch (const TcpClientException &err)
+            {
+
+                std::cout << "callRosService tcp recv ERROR : %s" << std::endl;
+                sleep(3);
+                err_id = -1;
+                return false;
+            }
+        }
+       
+        
         std::cout << "%s" << std::endl;
         err_id = -1;
         return false;
