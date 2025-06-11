@@ -131,6 +131,7 @@ void CRRobotRos2::init()
     std::string serviceServoP = kRobotName + "/dobot_bringup_ros2/srv/ServoP";
     std::string topicFeedInfo = kRobotName + "/dobot_bringup_ros2/msg/FeedInfo";
 
+
     kServiceEnableRobot = this->create_service<dobot_msgs_v4::srv::EnableRobot>(serviceEnableRobot, std::bind(&CRRobotRos2::EnableRobot, this, std::placeholders::_1, std::placeholders::_2));
     kServiceDisableRobot = this->create_service<dobot_msgs_v4::srv::DisableRobot>(serviceDisableRobot, std::bind(&CRRobotRos2::DisableRobot, this, std::placeholders::_1, std::placeholders::_2));
     kServiceClearError = this->create_service<dobot_msgs_v4::srv::ClearError>(serviceClearError, std::bind(&CRRobotRos2::ClearError, this, std::placeholders::_1, std::placeholders::_2));
@@ -1103,4 +1104,4 @@ bool CRRobotRos2::ServoP(const std::shared_ptr<dobot_msgs_v4::srv::ServoP::Reque
 {
     std::cout<<"Dobot Driver called ServoP"<<std::endl;
     return commander_->callRosService(parseTool::parserServoPRequest2String(request), response->res);
-}
+}   qq
