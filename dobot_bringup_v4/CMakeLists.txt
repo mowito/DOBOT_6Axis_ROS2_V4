@@ -24,6 +24,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(mw_denso_homologation_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(dobot_msgs_v4 REQUIRED)
+find_package(trajectory_msgs REQUIRED)
 
 
 include_directories(
@@ -48,6 +49,7 @@ ament_target_dependencies(
   "std_msgs"
   "sensor_msgs"
   "dobot_msgs_v4"
+  "trajectory_msgs"
 )
 
 target_link_libraries(${PROJECT_NAME}_node 

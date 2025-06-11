@@ -3,7 +3,38 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 
 CRRobotRos2::CRRobotRos2() : rclcpp::Node("dobot_bringup_ros2"){};
+ /* sv - util function for servoing subscriber*/
+ void reorderJointTrajectory(trajectory_msgs::msg::JointTrajectory &msg,const std::vector<std::string> &external_joint_names)
+ {
+     if (msg.points.empty()) return;
 
+ // Build a map from current joint name to its index in the msg
+     std::unordered_map<std::string, size_t> name_to_index;
+     for (size_t i = 0; i < msg.joint_names.size(); ++i) {
+         name_to_index[msg.joint_names[i]] = i;
+     }
+
+     // Create new positions vector in the desired order
+     std::vector<double> reordered_positions;
+     reordered_positions.reserve(external_joint_names.size());
+
+     for (const auto &name : external_joint_names) {
+         auto it = name_to_index.find(name);
+         if (it != name_to_index.end()) {
+             reordered_positions.push_back(msg.points[0].positions[it->second]);
+         } else {
+             throw std::runtime_error("Joint name " + name + " not found in message.");
+         }
+     }
+
+     // Replace joint_names and point.positions with reordered versions
+     msg.joint_names = external_joint_names;
+     msg.points[0].positions = reordered_positions;
+ }
+ double rad2deg(double angle)
+ {
+     return(angle*180/M_PI);
+ }
 void CRRobotRos2::init()
 {
     std::string robotIp{""};
@@ -131,7 +162,7 @@ void CRRobotRos2::init()
     std::string serviceServoP = kRobotName + "/dobot_bringup_ros2/srv/ServoP";
     std::string topicFeedInfo = kRobotName + "/dobot_bringup_ros2/msg/FeedInfo";
 
-
+    servo_msg_subscriber_ = this->create_subscription<trajectory_msgs::msg::JointTrajectory>("/forward_position_controller/commands",1, std::bind(&CRRobotRos2::servo_callback, this, std::placeholders::_1));
     kServiceEnableRobot = this->create_service<dobot_msgs_v4::srv::EnableRobot>(serviceEnableRobot, std::bind(&CRRobotRos2::EnableRobot, this, std::placeholders::_1, std::placeholders::_2));
     kServiceDisableRobot = this->create_service<dobot_msgs_v4::srv::DisableRobot>(serviceDisableRobot, std::bind(&CRRobotRos2::DisableRobot, this, std::placeholders::_1, std::placeholders::_2));
     kServiceClearError = this->create_service<dobot_msgs_v4::srv::ClearError>(serviceClearError, std::bind(&CRRobotRos2::ClearError, this, std::placeholders::_1, std::placeholders::_2));
@@ -497,6 +528,7 @@ void CRRobotRos2::pubFeedBackInfo()
         rate.sleep();
     }
 }
+
 
 void CRRobotRos2::execute_action(const std::shared_ptr<dobot_msgs_v4::srv::EnableRobot::Request> request,
                                  std::shared_ptr<dobot_msgs_v4::srv::EnableRobot::Response> response)
@@ -1104,4 +1136,23 @@ bool CRRobotRos2::ServoP(const std::shared_ptr<dobot_msgs_v4::srv::ServoP::Reque
 {
     std::cout<<"Dobot Driver called ServoP"<<std::endl;
     return commander_->callRosService(parseTool::parserServoPRequest2String(request), response->res);
-}   qq
+}
+void CRRobotRos2::servo_callback(const trajectory_msgs::msg::JointTrajectory::SharedPtr msg) const
+{
+    auto msg_temp = *msg;
+    if (msg_temp.points.empty()) return;
+    reorderJointTrajectory(msg_temp,joint_names);
+    std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Request> servo_j_req;
+    servo_j_req->a = rad2deg(msg_temp.points[0].positions[0]);
+    servo_j_req->b = rad2deg(msg_temp.points[0].positions[1]);
+    servo_j_req->c = rad2deg(msg_temp.points[0].positions[2]);
+    servo_j_req->d = rad2deg(msg_temp.points[0].positions[3]);
+    servo_j_req->e = rad2deg(msg_temp.points[0].positions[4]);
+    servo_j_req->f = rad2deg(msg_temp.points[0].positions[5]);
+    std::shared_ptr<dobot_msgs_v4::srv::ServoP::Response> servo_j_res;
+    RCLCPP_WARN(rclcpp::get_logger("CRRobotRos2"),"servo angles %f,%f,%f,%f,%f,%f", servo_j_req->a, servo_j_req->b, servo_j_req->c, servo_j_req->d, servo_j_req->e, servo_j_req->f);
+    commander_->callRosService(parseTool::parserServoJRequest2String(servo_j_req), servo_j_res->res);
+
+
+    
+}

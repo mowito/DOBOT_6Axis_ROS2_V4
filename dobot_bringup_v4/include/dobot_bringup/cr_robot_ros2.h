@@ -115,6 +115,9 @@
 #include <dobot_msgs_v4/srv/get_current_command_id.hpp>
 #include <dobot_msgs_v4/srv/servo_j.hpp>
 #include <dobot_msgs_v4/srv/servo_p.hpp>
+#include <trajectory_msgs/msg/joint_trajectory.hpp>
+
+
 
 class CRRobotRos2 : public rclcpp::Node
 {
@@ -226,6 +229,9 @@ protected:
     bool GetCurrentCommandId(const std::shared_ptr<dobot_msgs_v4::srv::GetCurrentCommandId::Request> request, const std::shared_ptr<dobot_msgs_v4::srv::GetCurrentCommandId::Response> response);
     bool ServoJ(const std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Request> request, const std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Response> response);
     bool ServoP(const std::shared_ptr<dobot_msgs_v4::srv::ServoP::Request> request, const std::shared_ptr<dobot_msgs_v4::srv::ServoP::Response> response);
+    void servo_callback(const trajectory_msgs::msg::JointTrajectory::SharedPtr msg) const;
+   
+    
 
 private:
     rclcpp::TimerBase::SharedPtr kTimer;
@@ -321,6 +327,9 @@ private:
     std::shared_ptr<rclcpp::Service<dobot_msgs_v4::srv::ServoJ>> kServiceServoJ;
     std::shared_ptr<rclcpp::Service<dobot_msgs_v4::srv::ServoP>> kServiceServoP;
     std::shared_ptr<rclcpp::Client<dobot_msgs_v4::srv::GetErrorID>> kClientGeterror;
+
+    rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr servo_msg_subscriber_;
+    std::vector<std::string> joint_names{"Joint1,Joint2,Joint3,Joint4,Joint5,Joint6"};
 
 private:
     void getErrorID(std::vector<int> &Vec);
