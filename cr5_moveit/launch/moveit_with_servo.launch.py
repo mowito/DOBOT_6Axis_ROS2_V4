@@ -1,4 +1,8 @@
 from moveit_configs_utils import MoveItConfigsBuilder
+from ament_index_python.packages import get_package_share_path
+from launch.actions import DeclareLaunchArgument,IncludeLaunchDescription
+from launch.substitutions import Command, LaunchConfiguration
+
 from moveit_configs_utils.launches import generate_move_group_launch
 from ament_index_python.packages import get_package_share_directory
 import yaml
@@ -7,6 +11,7 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 from launch.substitutions import PathJoinSubstitution,FindExecutable,Command
 from launch import LaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 def load_yaml(package_name, file_path):
     package_path = get_package_share_directory(package_name)
     absolute_file_path = os.path.join(package_path, file_path)
@@ -48,7 +53,23 @@ def generate_launch_description():
                  "publish_frequency": 15.0,
              },
          ],
-     )
+    )
+   
+    urdf_tutorial_path = get_package_share_path('dobot_rviz')
+    print(urdf_tutorial_path /'launch/dobot_rviz.launch.py')
+
+
+    
+
+    
+    included_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+                str(urdf_tutorial_path /'launch/dobot_rviz.launch.py')))
+
+
+    
     ld.add_action(rsp_node)
     ld.add_action(servo_node)
+    ld.add_action(included_launch)
     return ld
+generate_launch_description()
