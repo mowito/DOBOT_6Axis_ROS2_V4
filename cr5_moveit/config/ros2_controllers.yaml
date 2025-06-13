@@ -12,6 +12,7 @@ controller_manager:
 
 cr5_group_controller:
   ros__parameters:
+    type: ros2_control_demo_example_7/RobotController
     joints:
       - joint1
       - joint2

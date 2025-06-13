@@ -116,6 +116,8 @@
 #include <dobot_msgs_v4/srv/servo_j.hpp>
 #include <dobot_msgs_v4/srv/servo_p.hpp>
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
+#include <trajectory_msgs/msg/joint_trajectory_point.hpp>
+
 
 
 
@@ -329,7 +331,7 @@ private:
     std::shared_ptr<rclcpp::Client<dobot_msgs_v4::srv::GetErrorID>> kClientGeterror;
 
     rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr servo_msg_subscriber_;
-    std::vector<std::string> joint_names{"Joint1,Joint2,Joint3,Joint4,Joint5,Joint6"};
+    std::vector<std::string> joint_names{"joint1","joint2","joint3","joint4","joint5","joint6"};
 
 private:
     void getErrorID(std::vector<int> &Vec);
