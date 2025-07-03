@@ -8,14 +8,14 @@ class TwistPublisher(Node):
     def __init__(self):
         super().__init__('twist_stamped_publisher')
         self.publisher_ = self.create_publisher(TwistStamped, '/servo_node/delta_twist_cmds', 10)
-        self.timer = self.create_timer(0.03, self.timer_callback)  # 10 Hz
+        self.timer = self.create_timer(0.01, self.timer_callback)  # 10 Hz
 
     def timer_callback(self):
         msg = TwistStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'Link6'
 
-        msg.twist.linear.z = 0.5 # Adjust Z velocity as needed
+        msg.twist.linear.z = 0.03# Adjust Z velocity as needed
         msg.twist.linear.x = 0.0
         msg.twist.linear.y = 0.0
         msg.twist.angular.x = 0.0
