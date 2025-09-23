@@ -15,7 +15,7 @@ class TwistPublisher(Node):
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'Link6'
 
-        msg.twist.linear.z = 0.03# Adjust Z velocity as needed
+        msg.twist.linear.z = 0.1# Adjust Z velocity as needed
         msg.twist.linear.x = 0.0
         msg.twist.linear.y = 0.0
         msg.twist.angular.x = 0.0
