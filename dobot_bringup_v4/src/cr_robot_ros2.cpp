@@ -1143,7 +1143,12 @@ void CRRobotRos2::servo_callback(const trajectory_msgs::msg::JointTrajectory::Sh
        trajectory_msgs::msg::JointTrajectory msg_temp = *msg;
        if (msg_temp.points.empty()) return;
        reorderJointTrajectory(msg_temp,joint_names);
+       const rclcpp::Time msg_time(msg_temp.header.stamp);
+    const rclcpp::Time current_ros_time = this->get_clock()->now();
 
+    const rclcpp::Duration time_diff = current_ros_time - msg_time;
+    if(time_diff.seconds()<0.05)
+        return;
        std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Request> servo_j_req = std::make_shared<dobot_msgs_v4::srv::ServoJ::Request>();
        std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Response> servo_j_res = std::make_shared<dobot_msgs_v4::srv::ServoJ::Response>();
         servo_j_req->a = rad2deg(msg_temp.points[0].positions[0]);
@@ -1152,7 +1157,7 @@ void CRRobotRos2::servo_callback(const trajectory_msgs::msg::JointTrajectory::Sh
         servo_j_req->d = rad2deg(msg_temp.points[0].positions[3]);
         servo_j_req->e = rad2deg(msg_temp.points[0].positions[4]);
         servo_j_req->f = rad2deg(msg_temp.points[0].positions[5]);
-        servo_j_req->param_value = {"t=0.5","aheadtime=50","gain=500"};
+        servo_j_req->param_value = {"t=0.03","aheadtime=50","gain=500"};
 //     std::shared_ptr<dobot_msgs_v4::srv::ServoP::Response> servo_j_res;
       commander_->callRosService(parseTool::parserServoJRequest2String(servo_j_req), servo_j_res->res);
 
