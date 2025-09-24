@@ -117,7 +117,8 @@
 #include <dobot_msgs_v4/srv/servo_p.hpp>
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <trajectory_msgs/msg/joint_trajectory_point.hpp>
-
+#include <chrono>
+#include <iomanip> 
 
 
 
@@ -332,6 +333,7 @@ private:
 
     rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr servo_msg_subscriber_;
     std::vector<std::string> joint_names{"joint1","joint2","joint3","joint4","joint5","joint6"};
+
 
 private:
     void getErrorID(std::vector<int> &Vec);

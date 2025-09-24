@@ -1139,12 +1139,10 @@ bool CRRobotRos2::ServoP(const std::shared_ptr<dobot_msgs_v4::srv::ServoP::Reque
 }
 void CRRobotRos2::servo_callback(const trajectory_msgs::msg::JointTrajectory::SharedPtr msg) const
 {
-       RCLCPP_INFO(rclcpp::get_logger("asd"),"asd");
+       
        trajectory_msgs::msg::JointTrajectory msg_temp = *msg;
        if (msg_temp.points.empty()) return;
-       RCLCPP_INFO(rclcpp::get_logger("asd"),"msg_temp.size1() %d",msg_temp.points.size());
        reorderJointTrajectory(msg_temp,joint_names);
-       RCLCPP_INFO(rclcpp::get_logger("asd"),"msg_temp.size() %d",msg_temp.points.size());
 
        std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Request> servo_j_req = std::make_shared<dobot_msgs_v4::srv::ServoJ::Request>();
        std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Response> servo_j_res = std::make_shared<dobot_msgs_v4::srv::ServoJ::Response>();
@@ -1156,7 +1154,6 @@ void CRRobotRos2::servo_callback(const trajectory_msgs::msg::JointTrajectory::Sh
         servo_j_req->f = rad2deg(msg_temp.points[0].positions[5]);
         servo_j_req->param_value = {"t=0.5","aheadtime=50","gain=500"};
 //     std::shared_ptr<dobot_msgs_v4::srv::ServoP::Response> servo_j_res;
-      RCLCPP_WARN(rclcpp::get_logger("CRRobotRos2"),"servo angles %f,%f,%f,%f,%f,%f", servo_j_req->a, servo_j_req->b, servo_j_req->c, servo_j_req->d, servo_j_req->e, servo_j_req->f);
       commander_->callRosService(parseTool::parserServoJRequest2String(servo_j_req), servo_j_res->res);
 
 
