@@ -1144,7 +1144,7 @@ void CRRobotRos2::servo_callback(const trajectory_msgs::msg::JointTrajectory::Sh
        if (msg_temp.points.empty()) return;
        reorderJointTrajectory(msg_temp,joint_names);
        const rclcpp::Time msg_time(msg_temp.header.stamp);
-    const rclcpp::Time current_ros_time = this->get_clock()->now();
+       const rclcpp::Time current_ros_time = this->now()  ;
 
     const rclcpp::Duration time_diff = current_ros_time - msg_time;
     if(time_diff.seconds()<0.05)
