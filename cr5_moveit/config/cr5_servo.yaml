@@ -10,14 +10,14 @@ scale:
   linear:  0.6  # Max linear velocity. Meters per publish_period. Unit is [m/s]. Only used for Cartesian commands.
   rotational:  0.3 # Max angular velocity. Rads per publish_period. Unit is [rad/s]. Only used for Cartesian commands.
   # Max joint angular/linear velocity. Rads or Meters per publish period. Only used for joint commands on joint_command_in_topic.
-  joint: 0.01
+  joint: 0.5
 # This is a fudge factor to account for any latency in the system, e.g. network latency or poor low-level
 # controller performance. It essentially increases the timestep when calculating the target pose, to move the target
 # pose farther away. [seconds]
 system_latency_compensation: 0.04
 
 ## Properties of outgoing commands
-publish_period: 0.5  # 1/Nominal publish rate [seconds]
+publish_period: 0.2  # 1/Nominal publish rate [seconds]
 low_latency_mode: false  # Set this to true to publish as soon as an incoming Twist command is received (publish_period is ignored)
 
 # What type of topic does your robot driver expect?
@@ -50,7 +50,7 @@ ee_frame_name: Link6  # The name of the end effector link, used to return the EE
 robot_link_command_frame:  Link6  # commands must be given in the frame of a robot link. Usually either the base or end effector
 
 ## Stopping behaviour
-incoming_command_timeout:  0.1  # Stop servoing if X seconds elapse without a new command
+incoming_command_timeout:  1.0  # Stop servoing if X seconds elapse without a new command
 # If 0, republish commands forever even if the robot is stationary. Otherwise, specify num. to publish.
 # Important because ROS may drop some messages and we need the robot to halt reliably.
 num_outgoing_halt_msgs_to_publish: 4
