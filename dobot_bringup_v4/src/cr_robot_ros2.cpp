@@ -162,7 +162,7 @@ void CRRobotRos2::init()
     std::string serviceServoP = kRobotName + "/dobot_bringup_ros2/srv/ServoP";
     std::string topicFeedInfo = kRobotName + "/dobot_bringup_ros2/msg/FeedInfo";
 
-    servo_msg_subscriber_ = this->create_subscription<trajectory_msgs::msg::JointTrajectory>("/forward_position_controller/commands",1, std::bind(&CRRobotRos2::servo_callback, this, std::placeholders::_1));
+    servo_msg_subscriber_ = this->create_subscription<geometry_msgs::msg::TwistStamped>("/dobotservop",1, std::bind(&CRRobotRos2::servo_callback, this, std::placeholders::_1));
     kServiceEnableRobot = this->create_service<dobot_msgs_v4::srv::EnableRobot>(serviceEnableRobot, std::bind(&CRRobotRos2::EnableRobot, this, std::placeholders::_1, std::placeholders::_2));
     kServiceDisableRobot = this->create_service<dobot_msgs_v4::srv::DisableRobot>(serviceDisableRobot, std::bind(&CRRobotRos2::DisableRobot, this, std::placeholders::_1, std::placeholders::_2));
     kServiceClearError = this->create_service<dobot_msgs_v4::srv::ClearError>(serviceClearError, std::bind(&CRRobotRos2::ClearError, this, std::placeholders::_1, std::placeholders::_2));
@@ -1137,33 +1137,28 @@ bool CRRobotRos2::ServoP(const std::shared_ptr<dobot_msgs_v4::srv::ServoP::Reque
     std::cout<<"Dobot Driver called ServoP"<<std::endl;
     return commander_->callRosService(parseTool::parserServoPRequest2String(request), response->res);
 }
-void CRRobotRos2::servo_callback(const trajectory_msgs::msg::JointTrajectory::SharedPtr msg) const
+void CRRobotRos2::servo_callback(const geometry_msgs::msg::TwistStamped::SharedPtr msg) const
 {
        
-       trajectory_msgs::msg::JointTrajectory msg_temp = *msg;
-       if (msg_temp.points.empty()) return;
-       reorderJointTrajectory(msg_temp,joint_names);
-    //    const rclcpp::Time msg_time(msg_temp.header.stamp);
-    //    const rclcpp::Time current_ros_time = this->now()  ;
+      geometry_msgs::msg::TwistStamped msg_temp = *msg;
+      
+       const rclcpp::Time msg_time(msg_temp.header.stamp);
+       const rclcpp::Time current_ros_time = this->now()  ;
 
-    // const rclcpp::Duration time_diff = current_ros_time - msg_time;
-    // if(time_diff.seconds()>0.05)
-    // {
-    //     RCLCPP_INFO(rclcpp::get_logger("asd"),"time_diff %f",time_diff.seconds());
-    //     return;
-    // }
-        
-       std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Request> servo_j_req = std::make_shared<dobot_msgs_v4::srv::ServoJ::Request>();
-       std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Response> servo_j_res = std::make_shared<dobot_msgs_v4::srv::ServoJ::Response>();
-        servo_j_req->a = rad2deg(msg_temp.points[0].positions[0]);
-        servo_j_req->b = rad2deg(msg_temp.points[0].positions[1]);
-        servo_j_req->c = rad2deg(msg_temp.points[0].positions[2]);
-        servo_j_req->d = rad2deg(msg_temp.points[0].positions[3]);
-        servo_j_req->e = rad2deg(msg_temp.points[0].positions[4]);
-        servo_j_req->f = rad2deg(msg_temp.points[0].positions[5]);
-        servo_j_req->param_value = {"t=0.48","aheadtime=50","gain=500"};
+    const rclcpp::Duration time_diff = current_ros_time - msg_time;
+    if(time_diff.seconds()<0.05)
+        return;
+       std::shared_ptr<dobot_msgs_v4::srv::ServoP::Request> servo_j_req = std::make_shared<dobot_msgs_v4::srv::ServoP::Request>();
+       std::shared_ptr<dobot_msgs_v4::srv::ServoP::Response> servo_j_res = std::make_shared<dobot_msgs_v4::srv::ServoP::Response>();
+        servo_j_req->a = msg_temp.linear.x*1000;
+        servo_j_req->b = msg_temp.linear.y*1000;
+        servo_j_req->c = msg_temp.linear.z*1000;
+        servo_j_req->d = rad2deg(msg_temp.angular.x);
+        servo_j_req->e = rad2deg(msg_temp.angular.y);
+        servo_j_req->f = rad2deg(msg_temp.angular.z);
+        servo_j_req->param_value = {"t=0.03","aheadtime=50","gain=500"};
 //     std::shared_ptr<dobot_msgs_v4::srv::ServoP::Response> servo_j_res;
-      commander_->callRosService(parseTool::parserServoJRequest2String(servo_j_req), servo_j_res->res);
+      commander_->callRosService(parseTool::parserServoPRequest2String(servo_j_req), servo_j_res->res);
 
 
     
