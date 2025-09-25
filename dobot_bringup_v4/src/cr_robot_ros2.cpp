@@ -162,7 +162,7 @@ void CRRobotRos2::init()
     std::string serviceServoP = kRobotName + "/dobot_bringup_ros2/srv/ServoP";
     std::string topicFeedInfo = kRobotName + "/dobot_bringup_ros2/msg/FeedInfo";
 
-    servo_msg_subscriber_ = this->create_subscription<geometry_msgs::msg::TwistStamped>("/dobotservop",1, std::bind(&CRRobotRos2::servo_callback, this, std::placeholders::_1));
+    servo_msg_subscriber_ = this->create_subscription<geometry_msgs::msg::TwistStamped>("/dobotservop",2, std::bind(&CRRobotRos2::servo_callback, this, std::placeholders::_1));
     kServiceEnableRobot = this->create_service<dobot_msgs_v4::srv::EnableRobot>(serviceEnableRobot, std::bind(&CRRobotRos2::EnableRobot, this, std::placeholders::_1, std::placeholders::_2));
     kServiceDisableRobot = this->create_service<dobot_msgs_v4::srv::DisableRobot>(serviceDisableRobot, std::bind(&CRRobotRos2::DisableRobot, this, std::placeholders::_1, std::placeholders::_2));
     kServiceClearError = this->create_service<dobot_msgs_v4::srv::ClearError>(serviceClearError, std::bind(&CRRobotRos2::ClearError, this, std::placeholders::_1, std::placeholders::_2));
@@ -1142,21 +1142,21 @@ void CRRobotRos2::servo_callback(const geometry_msgs::msg::TwistStamped::SharedP
        
       geometry_msgs::msg::TwistStamped msg_temp = *msg;
       
-       const rclcpp::Time msg_time(msg_temp.header.stamp);
-       const rclcpp::Time current_ros_time = this->now()  ;
+    //    const rclcpp::Time msg_time(msg_temp.header.stamp);
+    //    const rclcpp::Time current_ros_time = this->now()  ;
 
-    const rclcpp::Duration time_diff = current_ros_time - msg_time;
-    if(time_diff.seconds()<0.05)
-        return;
+    // const rclcpp::Duration time_diff = current_ros_time - msg_time;
+    // if(time_diff.seconds()<0.05)
+    //     return;
        std::shared_ptr<dobot_msgs_v4::srv::ServoP::Request> servo_j_req = std::make_shared<dobot_msgs_v4::srv::ServoP::Request>();
        std::shared_ptr<dobot_msgs_v4::srv::ServoP::Response> servo_j_res = std::make_shared<dobot_msgs_v4::srv::ServoP::Response>();
-        servo_j_req->a = msg_temp.linear.x*1000;
-        servo_j_req->b = msg_temp.linear.y*1000;
-        servo_j_req->c = msg_temp.linear.z*1000;
-        servo_j_req->d = rad2deg(msg_temp.angular.x);
-        servo_j_req->e = rad2deg(msg_temp.angular.y);
-        servo_j_req->f = rad2deg(msg_temp.angular.z);
-        servo_j_req->param_value = {"t=0.03","aheadtime=50","gain=500"};
+        servo_j_req->a = msg_temp.twist.linear.x*1000;
+        servo_j_req->b = msg_temp.twist.linear.y*1000;
+        servo_j_req->c = msg_temp.twist.linear.z*1000;
+        servo_j_req->d = rad2deg(msg_temp.twist.angular.x);
+        servo_j_req->e = rad2deg(msg_temp.twist.angular.y);
+        servo_j_req->f = rad2deg(msg_temp.twist.angular.z);
+        servo_j_req->param_value = {"t=0.3","aheadtime=100","gain=400"};
 //     std::shared_ptr<dobot_msgs_v4::srv::ServoP::Response> servo_j_res;
       commander_->callRosService(parseTool::parserServoPRequest2String(servo_j_req), servo_j_res->res);
 
