@@ -603,9 +603,9 @@ void CRRobotRos2::backendTask()
     last_robot_mode_ = robot_mode;
 }
 
-void CRRobotRos2::getJointState(double *point)
+void CRRobotRos2::getJointState(double *point,double *speed)
 {
-    commander_->getCurrentJointStatus(point);
+    commander_->getCurrentJointStatus(point,speed);
 }
 
 bool CRRobotRos2::isEnable() const
