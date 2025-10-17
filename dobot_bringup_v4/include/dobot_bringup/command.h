@@ -127,6 +127,7 @@ protected:
 private:
     std::mutex mutex_;
     double current_joint_[6];
+    double current_joint_speed[6];
     double tool_vector_[6];
     std::shared_ptr<RealTimeData> real_time_data_;
     std::atomic<bool> is_running_;
@@ -138,7 +139,7 @@ public:
     explicit CRCommanderRos2(const std::string &ip);
 
     ~CRCommanderRos2();
-    void getCurrentJointStatus(double *joint);
+    void getCurrentJointStatus(double *joint,double *joint_speed);
     void getToolVectorActual(double *val);
     void recvTask();
     void init();

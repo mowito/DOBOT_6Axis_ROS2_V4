@@ -15,10 +15,11 @@ CRCommanderRos2::~CRCommanderRos2()
     thread_->join();
 }
 
-void CRCommanderRos2::getCurrentJointStatus(double *joint)
+void CRCommanderRos2::getCurrentJointStatus(double *joint,double *joint_speed)
 {
     mutex_.lock();
     memcpy(joint, current_joint_, sizeof(current_joint_));
+    memcpy(joint_speed,current_joint_speed,sizeof(current_joint_speed));
     mutex_.unlock();
 }
 
@@ -66,6 +67,7 @@ void CRCommanderRos2::recvTask()
                     mutex_.lock();
                     for (uint32_t i = 0; i < 6; i++)
                         current_joint_[i] = deg2Rad(real_time_data_->q_actual[i]);
+                        current_joint_speed[i] = deg2Rad(real_time_data_->qd_actual[i]);
                     // std::cout<<"[command] realtime data have expected size ,"<<real_time_data_->len<<std::endl;
 
                     memcpy(tool_vector_, real_time_data_->tool_vector_actual, sizeof(tool_vector_));
