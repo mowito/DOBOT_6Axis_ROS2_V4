@@ -1,0 +1,7 @@
+ros2 action send_goal /cart_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory \
+"{trajectory: {
+    joint_names: ['slider_to_cart'],
+    points: [
+        {positions: [0.0], time_from_start: {sec: 10}}
+    ]
+}}"
