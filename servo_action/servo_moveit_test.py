@@ -11,7 +11,7 @@ class TwistZPublisher(Node):
         # Parameters (override with --ros-args -p key:=value)
         self.declare_parameter('topic', '/servo_node/delta_twist_cmds')
         self.declare_parameter('rate_hz', 30.0)
-        self.declare_parameter('value', -0.01)          # magnitude for Z
+        self.declare_parameter('value', -0.1)          # magnitude for Z
         self.declare_parameter('component', 'linear') # 'linear' or 'angular'
         self.declare_parameter('frame', 'camera_color_optical_frame')
 
