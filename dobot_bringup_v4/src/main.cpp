@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub = robot->create_publisher<sensor_msgs::msg::JointState>("joint_states", 100);
   joint_state_msg.name = {"joint1", "joint2", "joint3", "joint4", "joint5", "joint6"};
   joint_state_msg.position = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
+  joint_state_msg.velocity = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   dobot_msgs_v4::msg::RobotStatus robot_status_msg;
   rclcpp::Publisher<dobot_msgs_v4::msg::RobotStatus>::SharedPtr robot_status_pub = robot->create_publisher<dobot_msgs_v4::msg::RobotStatus>("dobot_msgs_v4/msg/RobotStatus", 100);
 
@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
   while (rclcpp::ok())
   {
     // 获取关节状态并发布消息
+
     robot->getJointState(position,speed);
     joint_state_msg.header.stamp = robot->get_clock()->now();
     joint_state_msg.header.frame_id = "dummy_link";

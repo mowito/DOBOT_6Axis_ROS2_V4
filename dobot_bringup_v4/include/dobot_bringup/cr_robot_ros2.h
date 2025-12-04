@@ -132,7 +132,7 @@ public:
                                std::shared_ptr<dobot_msgs_v4::srv::EnableRobot::Response> response);
     void goalHandle();
     void backendTask();
-    void getJointState(double *point);
+    void getJointState(double *point,double *speed);
     bool isEnable() const;
     bool isConnected() const;
     void getToolVectorActual(double *val);
@@ -233,7 +233,7 @@ protected:
     bool GetCurrentCommandId(const std::shared_ptr<dobot_msgs_v4::srv::GetCurrentCommandId::Request> request, const std::shared_ptr<dobot_msgs_v4::srv::GetCurrentCommandId::Response> response);
     bool ServoJ(const std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Request> request, const std::shared_ptr<dobot_msgs_v4::srv::ServoJ::Response> response);
     bool ServoP(const std::shared_ptr<dobot_msgs_v4::srv::ServoP::Request> request, const std::shared_ptr<dobot_msgs_v4::srv::ServoP::Response> response);
-    void servo_callback(const geometry_msgs::msg::TwistStamped::SharedPtr msg) const;
+    void servo_callback(const trajectory_msgs::msg::JointTrajectory::SharedPtr msg) const;
    
     
 
@@ -332,7 +332,7 @@ private:
     std::shared_ptr<rclcpp::Service<dobot_msgs_v4::srv::ServoP>> kServiceServoP;
     std::shared_ptr<rclcpp::Client<dobot_msgs_v4::srv::GetErrorID>> kClientGeterror;
 
-    rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr servo_msg_subscriber_;
+    rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr servo_msg_subscriber_;
     std::vector<std::string> joint_names{"joint1","joint2","joint3","joint4","joint5","joint6"};
 
 

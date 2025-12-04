@@ -11,9 +11,9 @@ class TwistZPublisher(Node):
         # Parameters (override with --ros-args -p key:=value)
         self.declare_parameter('topic', '/servo_node/delta_twist_cmds')
         self.declare_parameter('rate_hz', 30.0)
-        self.declare_parameter('value', 0.5)          # magnitude for Z
+        self.declare_parameter('value', -0.15)          # magnitude for Z
         self.declare_parameter('component', 'linear') # 'linear' or 'angular'
-        self.declare_parameter('frame', 'Link6')
+        self.declare_parameter('frame', 'base_link')
 
         self.topic = self.get_parameter('topic').get_parameter_value().string_value
         self.rate_hz = float(self.get_parameter('rate_hz').value)
@@ -30,7 +30,7 @@ class TwistZPublisher(Node):
             self.rate_hz = 30.0
 
         self.pub = self.create_publisher(TwistStamped, self.topic, 10)
-        self.timer = self.create_timer(1.0 / self.rate_hz, self._tick)
+        self.timer = self.create_timer(0.03, self._tick)
 
         self.get_logger().info(
             f"Publishing TwistStamped on {self.topic} at {self.rate_hz} Hz | "
@@ -44,7 +44,7 @@ class TwistZPublisher(Node):
 
         # Only set Z, everything else stays 0
         if self.component == 'linear':
-            msg.twist.linear.z = self.value
+            msg.twist.linear.x = self.value
         else:
             msg.twist.angular.z = self.value
 
