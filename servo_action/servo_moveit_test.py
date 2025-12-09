@@ -44,9 +44,10 @@ class TwistZPublisher(Node):
 
         # Only set Z, everything else stays 0
         if self.component == 'linear':
-            msg.twist.linear.x = -0.06
-            msg.twist.angular.y = 0.0
-            # msg.twist.linear.z = 0.005
+            # msg.twist.linear.x = 0.1500000
+            # msg.twist.linear.y =  0.0060
+            msg.twist.linear.z = 0.040
+            msg.twist.angular.z = 0.0
         else:
             msg.twist.angular.z = self.value
 
