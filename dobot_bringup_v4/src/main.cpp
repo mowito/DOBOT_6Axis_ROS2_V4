@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub = robot->create_publisher<sensor_msgs::msg::JointState>("joint_states", 100);
   joint_state_msg.name = {"joint1", "joint2", "joint3", "joint4", "joint5", "joint6"};
   joint_state_msg.position = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
+  joint_state_msg.velocity = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   dobot_msgs_v4::msg::RobotStatus robot_status_msg;
   rclcpp::Publisher<dobot_msgs_v4::msg::RobotStatus>::SharedPtr robot_status_pub = robot->create_publisher<dobot_msgs_v4::msg::RobotStatus>("dobot_msgs_v4/msg/RobotStatus", 100);
 
@@ -34,11 +34,7 @@ int main(int argc, char *argv[])
   std::string a = robot_type == nullptr ? "cr5" : robot_type;
   std::string b = "_robot/joint_controller/follow_joint_trajectory";
   std::string ss = z + a + b;
-  for (uint32_t i = 0; i < 6; i++)
-  {
-    joint_state_msg.position.push_back(0.0);
-    joint_state_msg.name.push_back(std::string("joint") + std::to_string(i + 1));
-  }
+ 
 
   double rate_value = robot->declare_parameter<double>("JointStatePublishRate", 10.0);
 
@@ -46,17 +42,20 @@ int main(int argc, char *argv[])
 
   rclcpp::Rate rate(rate_value);
   double position[6];
+  double speed[6];
   while (rclcpp::ok())
   {
     // 获取关节状态并发布消息
-    robot->getJointState(position);
+
+    robot->getJointState(position,speed);
     joint_state_msg.header.stamp = robot->get_clock()->now();
     joint_state_msg.header.frame_id = "dummy_link";
     for (uint32_t i = 0; i < 6; i++)
     {
       joint_state_msg.position[i] = position[i];
+      joint_state_msg.velocity[i] = speed[i];
     }
-    joint_state_pub->publish(joint_state_msg);
+   joint_state_pub->publish(joint_state_msg);
 
     double val[6];
     robot->getToolVectorActual(val);
