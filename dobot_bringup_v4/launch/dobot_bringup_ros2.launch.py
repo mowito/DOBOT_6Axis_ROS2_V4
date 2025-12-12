@@ -37,6 +37,7 @@ dobot_ros2_params = [
     {"robot_node_name": robot_node_name},
     {"robot_number": robot_number},
 ]
+print(dobot_ros2_params)
 
 
 def generate_launch_description():
@@ -51,3 +52,4 @@ def generate_launch_description():
             # respawn=True
         ),
     ])
+generate_launch_description()

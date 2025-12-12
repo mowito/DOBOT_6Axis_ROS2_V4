@@ -1,5 +1,9 @@
 from moveit_configs_utils import MoveItConfigsBuilder
-from moveit_configs_utils.launches import generate_demo_launch
+from ament_index_python.packages import get_package_share_path
+from launch.actions import DeclareLaunchArgument,IncludeLaunchDescription
+from launch.substitutions import Command, LaunchConfiguration
+
+from moveit_configs_utils.launches import generate_move_group_launch
 from ament_index_python.packages import get_package_share_directory
 import yaml
 import os
@@ -7,6 +11,7 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 from launch.substitutions import PathJoinSubstitution,FindExecutable,Command
 from launch import LaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 def load_yaml(package_name, file_path):
     package_path = get_package_share_directory(package_name)
     absolute_file_path = os.path.join(package_path, file_path)
@@ -19,11 +24,9 @@ def load_yaml(package_name, file_path):
 
 def generate_launch_description():
     moveit_config = MoveItConfigsBuilder("cr5_robot", package_name="cr5_moveit").to_moveit_configs()
-    nodes = generate_demo_launch(moveit_config)
+    ld = generate_move_group_launch(moveit_config)
     servo_yaml = load_yaml("cr5_moveit", "config/cr5_servo.yaml")
     servo_params = {"moveit_servo": servo_yaml}
-    
-    print(  moveit_config.robot_description_kinematics)
     servo_node = Node(
         package="moveit_servo",
         
@@ -38,7 +41,35 @@ def generate_launch_description():
         ],
         output="screen",
     )
-    nodes.add_action(servo_node)
 
-    return nodes
+    rsp_node = Node(
+         package="robot_state_publisher",
+         executable="robot_state_publisher",
+         respawn=True,
+         output="screen",
+         parameters=[
+             moveit_config.robot_description,
+             {
+                 "publish_frequency": 15.0,
+             },
+         ],
+    )
+   
+    urdf_tutorial_path = get_package_share_path('dobot_rviz')
+    print(urdf_tutorial_path /'launch/dobot_rviz.launch.py')
 
+
+    
+
+    
+    included_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+                str(urdf_tutorial_path /'launch/dobot_rviz.launch.py')))
+
+
+    
+    ld.add_action(rsp_node)
+    ld.add_action(servo_node)
+    ld.add_action(included_launch)
+    return ld
+generate_launch_description()
